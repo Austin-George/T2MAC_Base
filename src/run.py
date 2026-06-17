@@ -114,7 +114,7 @@ def run_sequential(args, logger):
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
 
     if args.use_cuda:
-        learner.cuda()
+        learner.to(self.args.device)
 
     if args.checkpoint_path != "":
 
@@ -208,6 +208,9 @@ def run_sequential(args, logger):
             logger.log_stat("episode", episode, runner.t_env)
             logger.print_recent_stats()
             last_log_T = runner.t_env
+    if args.save_replay:
+      print("Saving replay...")
+      runner.save_replay()
 
     runner.close_env()
     logger.console_logger.info("Finished Training")

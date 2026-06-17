@@ -49,7 +49,7 @@ class VffacMAC:
 
         send_prob = self.agent.generate_send_prob(agent_inputs)
 
-        send_target = torch.clamp(self.generate_send_target(send_prob) - torch.eye(self.n_agents).cuda(), 0,
+        send_target = torch.clamp(self.generate_send_target(send_prob) - torch.eye(self.n_agents, device=send_prob.device), 0,
                                   1).int().detach()
 
         agents_out, u_err = self.agent.aggregate(agents_query, agents_key, agents_value,
@@ -79,7 +79,7 @@ class VffacMAC:
         self.agent.load_state_dict(other_mac.agent.state_dict())
 
     def cuda(self):
-        self.agent.cuda()
+        self.agent.to(self.args.device)
 
     def save_models(self, path):
         th.save(self.agent.state_dict(), "{}/agent.th".format(path))

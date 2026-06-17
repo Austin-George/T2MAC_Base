@@ -21,7 +21,7 @@ env_args:
   reward_scale_rate: 20
   reward_sparse: False
   reward_win: 200
-  replay_dir: ""
+  replay_dir: "Replays"
   replay_prefix: ""
   state_last_action: True
   state_timestep_number: False
@@ -33,8 +33,8 @@ env_args:
 
 test_greedy: True
 test_nepisode: 32
-test_interval: 10000
-log_interval: 10000
-runner_log_interval: 10000
-learner_log_interval: 10000
-t_max: 5050000
+test_interval: 1000
+log_interval: 1000
+runner_log_interval: 1000
+learner_log_interval: 1000
+t_max: 100000

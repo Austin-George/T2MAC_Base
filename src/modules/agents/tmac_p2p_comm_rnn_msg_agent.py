@@ -1,3 +1,4 @@
+import datetime
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -114,7 +115,7 @@ class RnnMsgAgent(nn.Module):
     #         received_belief, received_uncertainty = self.combine(received_belief, received_uncertainty, b, u)
     #     all_evidence = self.belief_to_evidence(received_belief, received_uncertainty)
     #
-    #     received_evidence = torch.tensor([]).cuda()
+    #     received_evidence = torch.tensor([], device=evidence.device)
     #     for env_send_target, env_evidence, env_all_evi in zip(batch_send_target, batch_evidence, all_evidence):
     #         for agent_send_target in env_send_target:
     #             r_e = env_all_evi.clone()
@@ -141,14 +142,14 @@ class RnnMsgAgent(nn.Module):
     #     S = torch.sum(alpha, dim=-1, keepdim=True)
     #     batch_belief = batch_evidence / (S.expand(batch_evidence.shape))
     #     batch_uncertainty = self.args.n_actions / S
-    #     received_belief = torch.zeros((1, self.args.n_actions)).cuda()
-    #     received_uncertainty = torch.ones((1, 1)).cuda()
+    #     received_belief = torch.zeros((1, self.args.n_actions), device=evidence.device)
+    #     received_uncertainty = torch.ones((1, 1), device=evidence.device)
     #     for env_belief, env_uncertainty in zip(batch_belief, batch_uncertainty):
     #         for b, u in zip(env_belief, env_uncertainty):
     #             received_belief, received_uncertainty = self.combine(received_belief, received_uncertainty, b, u)
     #     all_evidence = self.belief_to_evidence(received_belief, received_uncertainty)
     #
-    #     received_evidence = torch.tensor([]).cuda()
+    #     received_evidence = torch.tensor([], device=evidence.device)
     #     for env_send_target, env_evidence in zip(batch_send_target, batch_evidence):
     #         for agent_send_target in env_send_target:
     #             r_e = all_evidence.clone()
@@ -170,10 +171,10 @@ class RnnMsgAgent(nn.Module):
         S = torch.sum(alpha, dim=-1, keepdim=True)
         batch_belief = batch_evidence / (S.expand(batch_evidence.shape))
         batch_uncertainty = self.args.n_actions / S
-        received_belief = torch.zeros((1, self.args.n_actions)).cuda()
-        received_uncertainty = torch.ones((1, 1)).cuda()
-        combined_belief = torch.tensor([]).cuda()
-        combined_uncertainty = torch.tensor([]).cuda()
+        received_belief = torch.zeros((1, self.args.n_actions), device=evidence.device)
+        received_uncertainty = torch.ones((1, 1), device=evidence.device)
+        combined_belief = torch.tensor([], device=evidence.device)
+        combined_uncertainty = torch.tensor([], device=evidence.device)
         count = 0
         s_time = datetime.datetime.now()
         for env_send_target, env_belief, env_uncertainty in zip(batch_send_target, batch_belief, batch_uncertainty):
