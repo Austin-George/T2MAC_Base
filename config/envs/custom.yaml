@@ -1,0 +1,12 @@
+env: custom
+
+env_args:
+  class_path: "your_package.your_module.YourMultiAgentEnv"
+
+test_greedy: True
+test_nepisode: 20
+test_interval: 2000
+log_interval: 2000
+runner_log_interval: 2000
+learner_log_interval: 2000
+t_max: 10000

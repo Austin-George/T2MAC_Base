@@ -1,0 +1,29 @@
+# --- TarMAC over the existing PyMARL/QMIX training stack ---
+
+action_selector: "epsilon_greedy"
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 50000
+
+runner: "episode"
+buffer_size: 5000
+target_update_interval: 200
+
+agent_output_type: "q"
+double_q: True
+mixer: "qmix"
+mixing_embed_dim: 32
+hypernet_layers: 2
+hypernet_embed: 64
+
+n_value: 32
+n_key: 16
+n_query: 16
+tarmac_rounds: 1
+tarmac_self_attention: True
+
+mac: "tarmac_mac"
+agent: "tarmac_rnn_msg"
+learner: "q_learner"
+
+name: "tarmac"
