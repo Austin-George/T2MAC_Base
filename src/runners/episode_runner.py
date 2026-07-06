@@ -45,6 +45,40 @@ class EpisodeRunner:
         self.env.reset()
         self.t = 0
 
+    def _get_hetero_obs(self):
+        """
+        --- SEMANTIC FEATURE SELECTION ---
+        Intercepts the homogeneous 160-size observation from the environment
+        and forcefully slices it based on the unit's semantic role.
+        - Medivac (Agent 0): Size 110 (No enemy radar)
+        - Marauder (Agent 1, 2): Size 130 (Short-range enemy radar)
+        - Marine (Agent 3-9): Size 160 (Full radar)
+        """
+        raw_obs = self.env.get_obs()
+        hetero_obs = []
+        
+        for agent_id, agent_obs in enumerate(raw_obs):
+            obs_list = list(agent_obs)
+            
+            if agent_id == 0:
+                # MEDIVAC: Remove 50 Enemy Radar slots (indices 4 to 54)
+                del obs_list[4:54]
+                # TRANSPORT PADDING: Pad back to 160 so PyTorch buffer doesn't crash.
+                # Notice we append to the END. This permanently shifts the true data!
+                obs_list.extend([0.0] * 50)
+                hetero_obs.append(obs_list)
+            elif agent_id in [1, 2]:
+                # MARAUDER: Remove 30 long-range combat slots
+                del obs_list[4:34]
+                # TRANSPORT PADDING: Pad back to 160
+                obs_list.extend([0.0] * 30)
+                hetero_obs.append(obs_list)
+            else:
+                # MARINE: Keep full 160-feature radar
+                hetero_obs.append(obs_list)
+                
+        return hetero_obs
+
     def run(self, test_mode=False):
         self.reset()
 
@@ -57,13 +91,11 @@ class EpisodeRunner:
             pre_transition_data = {
                 "state": [self.env.get_state()],
                 "avail_actions": [self.env.get_avail_actions()],
-                "obs": [self.env.get_obs()]
+                "obs": [self._get_hetero_obs()]  # Injecting our sliced heterogeneous data!
             }
 
             self.batch.update(pre_transition_data, ts=self.t)
 
-            # Pass the entire batch of experiences up till now to the agents
-            # Receive the actions for each agent at this timestep in a batch of size 1
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
 
             reward, terminated, env_info = self.env.step(actions[0])
@@ -82,11 +114,10 @@ class EpisodeRunner:
         last_data = {
             "state": [self.env.get_state()],
             "avail_actions": [self.env.get_avail_actions()],
-            "obs": [self.env.get_obs()]
+            "obs": [self._get_hetero_obs()]  # Injecting our sliced heterogeneous data!
         }
         self.batch.update(last_data, ts=self.t)
 
-        # Select actions in the last stored state
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         self.batch.update({"actions": actions}, ts=self.t)
 

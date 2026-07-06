@@ -13,7 +13,6 @@ class Logger:
         self.stats = defaultdict(lambda: [])
 
     def setup_tb(self, directory_name):
-        # Import here so it doesn't have to be installed if you don't use it
         from tensorboard_logger import configure, log_value
         configure(directory_name)
         self.tb_logger = log_value
@@ -51,7 +50,6 @@ class Logger:
         self.console_logger.info(log_str)
 
 
-# set up a custom logger
 def get_logger():
     logger = logging.getLogger()
     logger.handlers = []
@@ -62,4 +60,3 @@ def get_logger():
     logger.setLevel('DEBUG')
 
     return logger
-

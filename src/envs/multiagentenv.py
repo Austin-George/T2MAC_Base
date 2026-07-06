@@ -32,7 +32,6 @@ class MultiAgentEnv(object):
 
     def get_total_actions(self):
         """ Returns the total number of actions an agent could ever take """
-        # TODO: This is only suitable for a discrete 1 dimensional action space for each agent
         raise NotImplementedError
 
     def reset(self):

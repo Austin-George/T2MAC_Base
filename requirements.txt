@@ -1,0 +1,7 @@
+torch>=1.8.0
+numpy
+pyyaml
+sacred
+tensorboard-logger
+pysc2
+git+https://github.com/oxwhirl/smac.git

@@ -138,7 +138,6 @@ class EpisodeBatch:
                 else:
                     raise KeyError("Unrecognised key {}".format(key))
 
-            # Update the scheme to only have the requested keys
             new_scheme = {key: self.scheme[key] for key in item}
             new_groups = {self.scheme[key]["group"]: self.groups[self.scheme[key]["group"]]
                           for key in item if "group" in self.scheme[key]}
@@ -173,24 +172,18 @@ class EpisodeBatch:
 
     def _parse_slices(self, items):
         parsed = []
-        # Only batch slice given, add full time slice
-        if (isinstance(items, slice)  # slice a:b
-            or isinstance(items, int)  # int i
-            or (isinstance(items, (list, np.ndarray, th.LongTensor, th.cuda.LongTensor)))  # [a,b,c]
-            ):
+        if (isinstance(items, slice)
+            or isinstance(items, int)
+            or (isinstance(items, (list, np.ndarray, th.LongTensor, th.cuda.LongTensor)))):
             items = (items, slice(None))
 
-        # Need the time indexing to be contiguous
         if isinstance(items[1], list):
             raise IndexError("Indexing across Time must be contiguous")
 
         for item in items:
-            #TODO: stronger checks to ensure only supported options get through
             if isinstance(item, int):
-                # Convert single indices to slices
                 parsed.append(slice(item, item+1))
             else:
-                # Leave slices and lists as is
                 parsed.append(item)
         return parsed
 
@@ -207,7 +200,7 @@ class EpisodeBatch:
 class ReplayBuffer(EpisodeBatch):
     def __init__(self, scheme, groups, buffer_size, max_seq_length, preprocess=None, device="cpu"):
         super(ReplayBuffer, self).__init__(scheme, groups, buffer_size, max_seq_length, preprocess=preprocess, device=device)
-        self.buffer_size = buffer_size  # same as self.batch_size but more explicit
+        self.buffer_size = buffer_size
         self.buffer_index = 0
         self.episodes_in_buffer = 0
 
@@ -236,7 +229,6 @@ class ReplayBuffer(EpisodeBatch):
         if self.episodes_in_buffer == batch_size:
             return self[:batch_size]
         else:
-            # Uniform sampling only atm
             ep_ids = np.random.choice(self.episodes_in_buffer, batch_size, replace=False)
             return self[ep_ids]
 
@@ -245,4 +237,3 @@ class ReplayBuffer(EpisodeBatch):
                                                                         self.buffer_size,
                                                                         self.scheme.keys(),
                                                                         self.groups.keys())
-
